@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register</title>
+    <style>
+        * {
+            margin: 0 auto;
+            padding: 0;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            justify-content: center;
+            align-items: center;
+        }
+        body::before {
+            content: "";
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(18,32,48,1) 0%, rgba(10,22,33,1) 35%, rgba(0,0,0,1) 100%);
+            background-size: 200% 200%;
+            animation: backgroundMove 10s ease infinite;
+            z-index: -1; /* Ensure it's behind other content */
+        }
+        .title {
+            text-align: center;
+            color: #baccd9;
+            font-size: 40px;
+            font-weight: bold;
+            padding-top: 20px;
+        }
+        .login-box {
+            text-align: center;
+            width: 340px;
+            height: 400px;
+            margin-top: 60px;
+            border: 1px solid #101f30;
+            border-radius: 5px;
+            background-color: rgba(249, 249, 249, 0.1); /* 使用 rgba() 函数设置背景色 */
+        }
+        h1 {
+            margin-top: 30px;
+        }
+        form {
+            margin-top: 30px;
+        }
+        .login-box input[type="text"],
+        .login-box input[type="password"],
+        .login-box input[type="submit"] {
+            width: 280px;
+            height: 40px;
+            padding: 5px;
+            margin-top: 20px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+        .login-box input[type="submit"] {
+            margin-top: 60px;
+            background-color: #619ac3;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="title">Register for smart server</div>
+    <div class="login-box">
+        <h1>Register</h1>
+        <form method="post">
+            <input type="text" id="username" name="username" placeholder="username">
+            <input type="password" id="password" name="password" placeholder="password">
+            <input type="submit" value="Register">
+        </form>
+    </div>
+</body>
+</html>

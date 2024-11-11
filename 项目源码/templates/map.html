@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>店铺地图</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        #map {
+            height: 100vh;
+            width: 100vw;
+        }
+        #search-box {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 8px 12px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            width: 300px;
+            z-index: 1000;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+        #info {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            z-index: 1000;
+            font-size: 14px;
+            color: #333;
+        }
+        #return-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #619ac3;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 12px;
+            font-weight: bold;
+            z-index: 10000; /* 增加z-index */
+        }
+    </style>
+</head>
+<body>
+    <button id="return-button" onclick="window.location.href='index.html'">返回</button>
+    <input type="text" id="search-box" placeholder="搜索店铺...">
+    <div id="map"></div>
+    <div id="info">在这里搜索店铺以查看详细信息。</div>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        // 初始化地图
+        const map = L.map('map').setView([39.9042, 116.4074], 5); // 默认视图为北京
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+        }).addTo(map);
+
+        // 店铺位置数据
+        const shopLocations = {
+            "一页书店": { lat: 39.9042, lng: 116.4074, info: "一页书店是北京一家受欢迎的书店，提供各种类型的书籍。" },
+            "星巴克咖啡": { lat: 31.2304, lng: 121.4737, info: "星巴克咖啡是知名的咖啡连锁店，提供各种咖啡饮品和小吃。" },
+            "茶馆": { lat: 32.0594, lng: 118.7965, info: "茶馆提供传统的茶饮体验，有多种精选的好茶。" },
+            "书虫咖啡馆": { lat: 34.0522, lng: -118.2437, info: "书虫咖啡馆结合了书店和咖啡馆，是读书和放松的好地方。" },
+            "蓝瓶咖啡": { lat: 37.7749, lng: -122.4194, info: "蓝瓶咖啡以其高品质的咖啡和极简设计而闻名。" },
+            "茶瓦纳": { lat: 40.7128, lng: -74.0060, info: "茶瓦纳专注于高端散茶和茶具。" },
+            "福伊尔书店": { lat: 51.5074, lng: -0.1278, info: "福伊尔书店在伦敦提供丰富的书籍选择和舒适的阅读空间。" },
+            "花神咖啡馆": { lat: 48.8566, lng: 2.3522, info: "花神咖啡馆是巴黎著名的咖啡馆，以其历史意义和迷人的氛围著称。" },
+            "云南茶馆": { lat: 22.3193, lng: 114.1694, info: "云南茶馆提供来自云南地区的多种茶叶，并有茶道表演。" }
+        };
+
+        // 为每个店铺位置创建标记
+        const markers = {};
+        for (const [title, {lat, lng, info}] of Object.entries(shopLocations)) {
+            const marker = L.marker([lat, lng]).addTo(map).bindPopup(info);
+            markers[title] = marker;
+        }
+
+        // 处理搜索
+        const searchBox = document.getElementById('search-box');
+        searchBox.addEventListener('input', (e) => {
+            const query = e.target.value.trim().toLowerCase();
+            let found = false;
+            for (const [title, marker] of Object.entries(markers)) {
+                if (title.toLowerCase().includes(query)) {
+                    map.setView([shopLocations[title].lat, shopLocations[title].lng], 13);
+                    marker.openPopup();
+                    document.getElementById('info').innerText = shopLocations[title].info;
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                document.getElementById('info').innerText = '未找到结果。';
+            }
+        });
+    </script>
+</body>
+</html>

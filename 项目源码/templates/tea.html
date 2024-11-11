@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teashop</title>
+    <style>
+        body {
+            background: url('../static/images/tea.jpg') no-repeat center center fixed;
+            background-size: cover;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            border: 20px solid #e8d7c4;
+        }
+
+        .link {
+            stroke: #555;
+            stroke-opacity: 0.8;
+            stroke-width: 2px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        h3 {
+            color: aliceblue;
+            margin: 20px auto;
+            height: 50px;
+            width: 100%;
+            font-size: 36px;
+            font-weight: bold;
+            text-align: center;
+            border-top: 3px solid #e8d7c42c;
+            border-bottom: 3px solid #e8d7c427;
+            opacity: 0.9;
+        }
+
+        main {
+            display: flex;
+            height: calc(100vh - 70px);
+        }
+
+        .left-panel {
+            width: 50%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-robot {
+            width: 100%;
+            height: 100%;
+            border-radius: 15px;
+            background: rgba(243, 234, 194, 0.301);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            height: 50px;
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            line-height: 50px;
+            opacity: 0.9;
+        }
+
+        .chat-body {
+            flex: 1;
+            margin: 0 25px;
+            border-radius: 5px;
+            background-color: rgba(244, 250, 168, 0.247);
+            overflow-y: auto;
+        }
+
+        .chat-input {
+            width: 100%;
+            height: 80px;
+            margin: 10px 0;
+            display: flex;
+        }
+
+        input {
+            text-indent: 1em;
+            width: calc(100% - 108px);
+            height: 43px;
+            margin: 10px;
+            border: 1px solid rgba(0, 0, 0, 0.459);
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            width: 98px;
+            height: 43px;
+            margin: 10px;
+            border: 1px solid rgba(0, 0, 0, 0.39);
+            cursor: pointer;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .message-container {
+            display: flex;
+            align-items: flex-end;
+            margin-bottom: 10px;
+        }
+
+        .message {
+            max-width: 70%;
+            padding: 10px;
+            border-radius: 20px;
+            position: relative;
+            margin-left: 10px;
+            margin-right: 10px;
+        }
+
+        .user-message {
+            background-color: rgba(10, 89, 179, 0.8);
+            align-self: flex-end;
+        }
+
+        .user-message:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: -10px;
+            width: 0;
+            height: 0;
+            border-top: 10px solid rgba(220, 248, 198, 0.8);
+            border-right: 10px solid transparent;
+        }
+
+        .bot-message {
+            background-color: rgba(50, 47, 204, 0.8);
+            align-self: flex-start;
+        }
+
+        .bot-message:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -10px;
+            width: 0;
+            height: 0;
+            border-top: 10px solid rgba(41, 43, 183, 0.8);
+            border-left: 10px solid transparent;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+
+        .right-panel {
+            display: flex;
+            flex-direction: column;
+            width: 50%;
+            height: 100%;
+        }
+
+        .knowledge-graph {
+            width: 100%;
+            height: 70%;
+            border: 1px solid #ccc;
+            background: rgba(126, 126, 124, 0.8);
+        }
+
+        .chat-history {
+            width: 100%;
+            height: 30%;
+            border-radius: 15px;
+            background: rgba(126, 126, 124, 0.8);
+            padding: 10px;
+            box-sizing: border-box;
+            border-top: 1px solid #ccc;
+            overflow-y: auto;
+        }
+        .user-input{
+            color: #e8d7c418;
+        }
+    </style>
+</head>
+
+<body>
+    <h3>Welcome to the Teashop
+    <button onclick="location.href='{{ url_for('tea_shop') }}'">Shop Now</button>
+    </h3>
+    <main>
+        <div class="left-panel">
+            <div class="chat-robot">
+                <div class="chat-header">
+                    <div class="title">Ask me about tea</div>
+                </div>
+                <div class="chat-body" id="chat-body"></div>
+                <div class="chat-input">
+                    <input type="text" id="user-input" placeholder="输入你想知道关于茶的信息吧" />
+                    <button onclick="sendMessage()">Send</button>
+                </div>
+            </div>
+        </div>
+        <div class="right-panel">
+            <div class="knowledge-graph">
+                <div id="info">Click on a node to see details here.</div>
+                <svg width="100%" height="100%"></svg>
+            </div>
+            <div class="chat-history">
+                <h4>历史聊天记录</h4>
+            <div class="history-box">
+                {% for chat in chat_history %}
+                <div class="history-item" onclick="loadChatHistory('{{ chat.id }}')">{{ chat.user_message }}</div>
+                {% endfor %}
+            </div>
+            </div>
+        </div>
+    </main>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script>
+        const width = 800,
+            height = 600;
+
+        const svg = d3.select("svg")
+            .attr("width", width)
+            .attr("height", height)
+            .call(d3.zoom().on("zoom", (event) => {
+                svg.attr("transform", event.transform);
+            }))
+            .append("g");
+
+        const simulation = d3.forceSimulation()
+            .force("link", d3.forceLink().id(d => d.id).distance(100))
+            .force("charge", d3.forceManyBody().strength(-200))
+            .force("center", d3.forceCenter(width / 2, height / 2));
+
+        const teaData = {
+            "茶叶": {
+                "绿茶": {
+                    "西湖龙井": ["色泽翠绿", "味道甘醇"],
+                    "碧螺春": ["卷曲如螺", "香气浓郁"]
+                },
+                "红茶": {
+                    "祁门红茶": ["色泽乌润", "香气持久"],
+                    "正山小种": ["松烟香", "味浓醇"]
+                },
+                "乌龙茶": {
+                    "铁观音": ["香气浓郁", "汤色金黄"],
+                    "大红袍": ["岩韵明显", "味道醇厚"]
+                }
+            }
+        };
+
+        let graph = {
+            nodes: [{
+                id: "茶叶",
+                info: "茶叶是通过采摘茶树的嫩叶制作而成的天然饮品。"
+            }],
+            links: []
+        };
+
+        function addNodeAndLinks(source, target, info) {
+            if (!graph.nodes.find(n => n.id === target)) {
+                graph.nodes.push({
+                    id: target,
+                    info
+                });
+                graph.links.push({
+                    source,
+                    target
+                });
+            }
+        }
+
+        function expandNode(nodeId) {
+            const path = nodeId.split(" > ");
+            let current = teaData;
+
+            path.forEach(part => {
+                current = current[part];
+            });
+
+            if (typeof current === 'object' && !Array.isArray(current)) {
+                for (const [key, value] of Object.entries(current)) {
+                    const newNodeId = nodeId + " > " + key;
+                    addNodeAndLinks(nodeId, newNodeId, typeof value === 'string' ? value : null);
+                }
+            }
+        }
+
+        // function updateGraph() {
+        //     const link = svg.selectAll(".link")
+        //         .data(graph.links)
+        //         .join("line")
+        //         .attr("class", "link");
+
+        //     const node = svg.selectAll(".node")
+        //         .data(graph.nodes)
+        //         .join("g")
+        //         .attr("class", "node")
+        //         .on("click", (event, d) => {
+        //             expandNode(d.id);
+        //             updateGraph();
+        //             document.getElementById("info").innerText = d.info || `Node: ${d.id}`;
+        //         })
+        //         .call(d3.drag()
+        //             .on("start", dragstarted)
+        //             .on("drag", dragged)
+        //             .on("end", dragended));
+
+        //     node.append("circle")
+        //         .attr("r", 10);
+
+        //     node.append("text")
+        //         .attr("dx", 15)
+        //         .attr("dy", 3)
+        //         .text(d => d.id.split(" > ").pop());
+
+        //     simulation.nodes(graph.nodes);
+        //     simulation.force("link").links(graph.links);
+        //     simulation.alpha(1).restart();
+        // }
+
+        function updateGraph() {
+            const link = svg.selectAll(".link")
+                .data(graph.links)
+                .join("line")
+                .attr("class", "link");
+
+            const node = svg.selectAll(".node")
+                .data(graph.nodes)
+                .join("g")
+                .attr("class", "node")
+                .on("click", (event, d) => {
+                    // 判断节点是否为叶子节点
+                    const isLeaf = !graph.links.some(link => link.source.id === d.id || link.target.id === d.id);
+
+                    if (isLeaf) {
+                        // 将叶子节点的名称添加到聊天框并发送消息
+                        document.getElementById("user-input").value = d.id.split(" > ").pop();
+                        sendMessage();
+                    } else {
+                        // 展开非叶子节点
+                        expandNode(d.id);
+                        updateGraph();
+                        document.getElementById("info").innerText = d.info || `Node: ${d.id}`;
+                    }
+                })
+                .call(d3.drag()
+                    .on("start", dragstarted)
+                    .on("drag", dragged)
+                    .on("end", dragended));
+
+            node.append("circle")
+                .attr("r", 10);
+
+            node.append("text")
+                .attr("dx", 15)
+                .attr("dy", 3)
+                .text(d => d.id.split(" > ").pop());
+
+            simulation.nodes(graph.nodes);
+            simulation.force("link").links(graph.links);
+            simulation.alpha(1).restart();
+        }
+
+
+        simulation.on("tick", () => {
+            svg.selectAll(".link")
+                .attr("x1", d => d.source.x)
+                .attr("y1", d => d.source.y)
+                .attr("x2", d => d.target.x)
+                .attr("y2", d => d.target.y);
+
+            svg.selectAll(".node")
+                .attr("transform", d => `translate(${d.x},${d.y})`);
+        });
+
+        function dragstarted(event, d) {
+            if (!event.active) simulation.alphaTarget(0.3).restart();
+            d.fx = d.x;
+            d.fy = d.y;
+        }
+
+        function dragged(event, d) {
+            d.fx = event.x;
+            d.fy = event.y;
+        }
+
+        function dragended(event, d) {
+            if (!event.active) simulation.alphaTarget(0);
+            d.fx = null;
+            d.fy = null;
+        }
+        async function sendMessage() {
+            const userInput = document.getElementById('user-input').value;
+            if (userInput.trim() === '') return;
+
+            appendMessage(userInput, 'user-message');
+            document.getElementById('user-input').value = '';
+
+            const response = await fetch('/chat/tea', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message: userInput }),
+            });
+
+            const data = await response.json();
+            appendMessage(data.answer, 'bot-message');
+        }
+
+        function appendMessage(message, className) {
+            const chatBody = document.getElementById('chat-body');
+
+            // 创建消息容器
+            const messageContainer = document.createElement('div');
+            messageContainer.className = 'message-container';
+            chatBody.appendChild(messageContainer);
+
+            // 创建消息元素
+            const messageElement = document.createElement('div');
+            messageElement.className = `message ${className}`;
+            messageElement.innerText = message;
+            messageContainer.appendChild(messageElement);
+
+            // 滚动到聊天记录的底部
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        function sendPredefinedMessage(message) {
+            document.getElementById('user-input').value = message;
+            sendMessage();
+        }
+
+        async function loadChatHistory(chatId) {
+            const response = await fetch(`/chat-history/${chatId}`);
+            const data = await response.json();
+
+            const chatBody = document.getElementById('chat-body');
+            chatBody.innerHTML = '';  // 清空当前聊天记录
+
+            data.forEach(message => {
+                const className = message.role === 'user' ? 'user-message' : 'bot-message';
+                appendMessage(message.content, className);
+            });
+        }
+
+        expandNode("茶叶");
+        updateGraph();
+    </script>
+</body>
+</html>

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>bookshop</title>
+    <style>
+        * {
+            margin: 0 auto;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        header {
+            height: 150px;
+            width: 100%;
+            background: url(../static/images/book_bgc3.png) no-repeat center center;
+        }
+        h3 {
+            margin: 20px auto;
+            height: 50px;
+            width: 1200px;
+            font-size: 36px;
+            font-weight: bold;
+            text-align: center;
+            border-top: 3px solid #e8d7c4;
+            border-bottom: 3px solid #e8d7c4;
+        }
+        h4 {
+            height: 50px;
+            font-size: 36px;
+            font-weight: bold;
+            text-align: center;
+        }
+        main {
+            width: 1200px;
+            height: 600px;
+            margin-top: 20px;
+        }
+        .chat-robot {
+            float: left;
+            width: 600px;
+            margin-left: 100px;
+            margin-right: 25px;
+            height: 600px;
+            border-radius: 15px;
+            background: url(../static/images/book_bgc1.png) no-repeat center center;
+        }
+        .chat-header {
+            width: 600px;
+            height: 50px;
+        }
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            line-height: 50px;
+        }
+        .chat-body {
+            width: 550px;
+            margin: 0 25px;
+            height: 450px;
+            border-radius: 5px;
+            background-color: rgba(255, 255, 255, 0.6);
+        }
+        .chat-input {
+            width: 600px;
+            height: 80px;
+            margin: 10px 0;
+        }
+        input {
+            text-indent: 1em;
+            float: left;
+            width: 398px;
+            height: 43px;
+            margin: 10px 25px;
+            border: 1px solid black;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            float: left;
+            width: 98px;
+            height: 43px;
+            margin: 10px 25px;
+            border: 1px solid black;
+            cursor: pointer;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .chat-history {
+            float: left;
+            width: 400px;
+            margin-left: 50px;
+            margin-right: 0;
+            height: 600px;
+            border-radius: 15px;
+            background: url(../static/images/book_bgc5.png) no-repeat center center;
+        }
+        .history-box {
+            width: 90%;
+            height: 530px;
+            border-radius: 5px;
+            background-color: rgba(255, 255, 255, 0.6);
+        }
+        .message-container {
+            display: flex;
+            margin: 10px;
+        }
+        .message {
+            padding: 10px;
+            border-radius: 5px;
+            max-width: 80%;
+            word-wrap: break-word;
+            margin: 5px;
+            font-size: 16px;
+        }
+        .user-message {
+            background-color: #d4bda3;
+            align-self: flex-end;
+        }
+        .bot-message {
+            background-color: #e8d7c4;
+        }
+        @media (max-width: 600px) {
+            footer {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+    </header>
+    <h3>
+        Here is your book smart server
+        <button onclick="location.href='{{ url_for('book_shop') }}'">Shop Now</button>
+    </h3>
+    <main>
+        <div class="chat-robot">
+            <div class="chat-header">
+                <div class="title">
+                    Ask me what you like
+
+                </div>
+            </div>
+            <div class="chat-body" id="chat-body"></div>
+            <div class="chat-input">
+                <input type="text" id="user-input" placeholder="输入你想知道关于书店的信息吧" />
+                <button onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+        <div class="chat-history">
+            <h4>历史聊天记录</h4>
+            <div class="history-box">
+                {% for chat in chat_history %}
+                <div class="history-item" onclick="loadChatHistory('{{ chat.id }}')">{{ chat.user_message }}</div>
+                {% endfor %}
+            </div>
+        </div>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts-wordcloud/dist/echarts-wordcloud.min.js"></script>
+    <script>
+        async function sendMessage() {
+            const userInput = document.getElementById('user-input').value;
+            if (userInput.trim() === '') return;
+
+            appendMessage(userInput, 'user-message');
+            document.getElementById('user-input').value = '';
+
+            const response = await fetch('/chat/book', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message: userInput }),
+            });
+
+            const data = await response.json();
+            appendMessage(data.answer, 'bot-message');
+        }
+
+        function appendMessage(message, className) {
+            const chatBody = document.getElementById('chat-body');
+
+            // 创建消息容器
+            const messageContainer = document.createElement('div');
+            messageContainer.className = 'message-container';
+            chatBody.appendChild(messageContainer);
+
+            // 创建消息元素
+            const messageElement = document.createElement('div');
+            messageElement.className = `message ${className}`;
+            messageElement.innerText = message;
+            messageContainer.appendChild(messageElement);
+
+            // 滚动到聊天记录的底部
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        function sendPredefinedMessage(message) {
+            document.getElementById('user-input').value = message;
+            sendMessage();
+        }
+
+        async function loadChatHistory(chatId) {
+            const response = await fetch(`/chat-history/${chatId}`);
+            const data = await response.json();
+
+            const chatBody = document.getElementById('chat-body');
+            chatBody.innerHTML = '';  // 清空当前聊天记录
+
+            data.forEach(message => {
+                const className = message.role === 'user' ? 'user-message' : 'bot-message';
+                appendMessage(message.content, className);
+            });
+        }
+    </script>
+</body>
+
+</html>
+

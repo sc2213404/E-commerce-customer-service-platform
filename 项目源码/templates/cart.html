@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Cart</title>
+    <style>
+        header {
+				width: 100%;
+				height: 90px;
+				background: linear-gradient(#15559a, #2177b8);
+				text-align: center;
+				font-size: 48px;
+				font-weight: bold;
+				line-height: 90px;
+				color: #0f1423;
+			}
+        table {
+            margin: 0 auto;
+            width: 800px;
+            border: 1px solid #15559a;
+            border-collapse: collapse;
+        }
+        tr {
+            height: 100px;
+        }
+        th, td {
+            text-align: center;
+            width: 196px;
+            border: 2px solid #15559a;
+            border-collapse: collapse;
+            font-weight: bold;
+        }
+        div {
+            margin-right: 100px;
+            float: right;
+        }
+
+		footer {
+            position: fixed;
+            bottom: 0;
+			width: 100%;
+			height: 100px;
+			background: linear-gradient(#5698c3, #15559a);
+		}
+		footer ul li {
+            margin: 0 auto;
+			list-style: none;
+			float: left;
+			width: 25%;
+			text-align: center;
+			font-size: 18px;
+			font-weight: bold;
+			line-height: 100px;
+		}
+		footer a {
+			text-decoration: none;
+			color: #144a74;
+		}
+    </style>
+</head>
+<body>
+    <header>Here is Your Cart</header>
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Price</th>
+            <th>Quantity</th>
+            <th>Total</th>
+        </tr>
+        {% for item in cart_items %}
+        <tr>
+            <td>{{item.name}}</td>
+            <td>{{item.price}}</td>
+            <td>{{item.quantity}}</td>
+            <td>{{item.price*item.quantity}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <div>
+        <a href="{{ url_for('coffee_shop') }}">Continue Shopping</a>
+    </div>
+
+	<footer>
+		<ul>
+			<li><a href="">联系我们</a></li>
+			<li><a href="">隐私协议</a></li>
+			<li><a href="">社交媒体</a></li>
+			<li><a href="">售后咨询</a></li>
+		</ul>
+	</footer>
+</body>
+</html>

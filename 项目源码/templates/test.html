@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>轮播图</title>
+		<style type="text/css">
+			* {
+				box-sizing: border-box;
+				margin: 0;
+				padding: 0;
+			}
+
+			#box {
+				width: 200px;
+				height: 200px;
+				overflow: hidden;
+				position: relative;
+			}
+
+			#lunboimg {
+				width: 200px;
+				height: 200px;
+				position: absolute;
+				display: flex;
+			}
+
+			a {
+				height: 200px;
+				width: 200px;
+			}
+
+			img {
+				width: 200px;
+				height: 200px;
+				margin: 0;
+			}
+
+			#box:hover #selector {
+				display: flex;
+			}
+
+			#selector {
+				width: 80px;
+				height: 20px;
+				position: absolute;
+				bottom: 0;
+				left: 60px;
+				display: none;
+				justify-content: space-between;
+				z-index: 100;
+			}
+
+			#selector>span {
+				width: 15px;
+				height: 15px;
+				border-radius: 50%;
+				background-color: lightsalmon;
+				opacity: 0.8;
+				margin-right: 5px;
+				cursor: pointer;
+			}
+
+			#selector>span:hover {
+				background-color: #8A8A8A;
+			}
+			#left,#right{
+				width: 20px;
+				height: 20px;
+				position: absolute;
+				top: 90px;
+				background-color: lightsteelblue;
+				font-size: 18px;
+				border-radius: 50%;
+				text-align: center;
+				line-height: 100%;
+				cursor: pointer;
+				color: lightslategray;
+			}
+			#left{
+				left: 0;
+			}
+			#right{
+				right: 0;
+			}
+			#left:hover,#right:hover{
+				background-color: #8A8A8A;
+				color: #FFFFFF;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="box">
+			<!-- 放图片-->
+			<div id="lunboimg">
+				<a href="#">
+					<!-- 仅放一张图片，通过JS来改变图片地址即可-->
+					<img src="img/0.jpg" />
+				</a>
+			</div>
+			<!-- 放底部圆点-->
+			<div id="selector">
+				<span id=""></span>
+				<span id=""></span>
+				<span id=""></span>
+				<span id=""></span>
+			</div>
+			<!-- 左箭头-->
+			<div id="left">&lt;</div>
+			<!-- 右箭头-->
+			<div id="right">&gt;</div>
+		</div>
+
+		<script type="text/javascript">
+			let img = document.querySelector('img');
+			let span = document.querySelectorAll('span');
+			let left = document.getElementById('left');
+			let right = document.getElementById('right');
+			let index = 0;
+			let timer;
+			function show(){
+				img.src = `img/${index}.jpg`;
+			}
+
+			function autoPlay() {
+				timer = setInterval(function() {
+					if (index == span.length) {
+						index = 0;
+					}
+					show();
+					index++;
+				}, 1000);
+			}
+			autoPlay();
+			
+			function ctrlPlay(){
+				for(let i = 0; i < span.length; i++){
+					span[i].onclick = function(){
+						index = i;
+						show();
+					}
+				}
+			}
+			ctrlPlay();
+			function clickPlay(){
+				left.onclick = function(){
+					if(index <= 0){
+						index = span.length - 1;
+					}else{
+						index --;
+					}
+					show();
+				}
+				right.onclick = function(){
+					if(index == span.length){
+						index = 0;
+					}
+					index ++;
+					show();
+				}
+			}
+			clickPlay();
+			function eventList(){
+				for(let i = 0; i < span.length; i++){
+					span[i].addEventListener('mouseenter',function(){
+						clearInterval(timer);
+						index = i;
+						show();
+					},false);
+					span[i].addEventListener('mousemove',function(){
+						clearInterval(timer);
+						autoPlay();
+					},false);
+					
+				}
+			}
+			eventList();
+		</script>
+	</body>
+</html>
+
